@@ -1,0 +1,43 @@
+version: '2'
+
+services:
+  app1:
+    image: brandon26/php-apache-livman:0.1
+    volumes:
+      - ./apache1_www:/var/www/html
+    ports:
+      - 8100:80
+  
+  app2:
+    image: brandon26/php-apache-livman:0.1
+    volumes:
+      - ./apache2_www:/var/www/html
+    ports:
+      - 8200:80
+
+  nginx_rev_proxy1:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./app1:/etc/nginx
+      - ./app1_www:/var/www
+    ports:
+      - 8001:80
+
+  nginx_rev_proxy2:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes: 
+    - ./app2:/etc/nginx
+    - ./app2_www:/var/www
+    ports:
+      - 8002:80
+
+  haproxy:
+    image: haproxy
+    ports:
+      - 8000:80
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
